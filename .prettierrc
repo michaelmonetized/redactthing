@@ -1,0 +1,10 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "endOfLine": "lf",
+  "phpVersion": "8.0",
+  "braceStyle": "1tbs"
+}
