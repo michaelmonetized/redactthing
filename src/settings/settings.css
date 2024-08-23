@@ -1,0 +1,143 @@
+:root {
+  --rt-fg: #444;
+  --rt-bg: #eee;
+  --rt-border: #ccc;
+  --rt-btn-bg: #f390b2;
+  --rt-btn-fg: #fff;
+  --rt-btn-bg-hover: #89d9f1;
+  --rt-btn-bg-active: #5bb3a3;
+  font-size: 21px;
+}
+
+@media(prefers-color-scheme: dark) {
+  :root {
+    --rt-fg: #ddd;
+    --rt-bg: #222;
+    --rt-border: #444;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: system-ui;
+  background-color: var(--rt-bg);
+  color: var(--rt-fg);
+  padding: 1em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 16rem;
+  display: flex;
+  flex-flow: column;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 1rem;
+  text-align: center;
+}
+
+body>* {
+  flex-grow: 1;
+}
+
+a,
+img {
+  display: block;
+  margin: 0 auto;
+  color: var(--rt-fg);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+}
+
+input:not([type="radio"]),
+textarea {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  padding: .5rem 1rem;
+  border: 1px solid var(--rt-border);
+  border-radius: .25rem;
+  background: var(--rt-bg);
+  color: var(--rt-fg);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.fields,
+.actions,
+.mode {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+}
+
+[type="radio"] {
+  display: none;
+}
+
+[type="reset"] {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.actions {
+  justify-content: space-between;
+}
+
+.redactthing-btn,
+button {
+  display: block;
+  text-align: center;
+  padding: 1rem 2rem;
+  border: 2px solid var(--rt-border);
+  border-radius: 0.25em;
+  background: var(--rt-btn-bg);
+  color: var(--rt-btn-fg);
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+  font-weight: 900;
+  text-decoration: none;
+  border-radius: .5rem;
+}
+
+.redactthing-btn:hover,
+button:hover {
+  background: var(--rt-btn-bg-hover);
+}
+
+label:has([type="radio"]) {
+  display: block;
+  text-align: center;
+  padding: 1rem 2rem;
+  border: 2px solid var(--rt-border);
+  border-radius: 0.25em;
+  background: var(--rt-bg);
+  color: var(--rt-fg);
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+  font-weight: 900;
+  text-decoration: none;
+  border-radius: .5rem;
+}
+
+label:has([type="radio"]):hover {
+  opacity: .7;
+  background: var(--rt-btn-bg-hover);
+}
+
+label:has([type="radio"]:is(:checked)) {
+  background: var(--rt-btn-bg-active);
+}

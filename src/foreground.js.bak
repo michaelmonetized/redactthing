@@ -1,0 +1,185 @@
+redactthingSettingsDefaults = {
+  mode: 'redact',
+  email: '',
+  other: ''
+};
+
+setRedactthingPluginSettings = (settings = { ...redactthingSettingsDefaults }) => {
+  localStorage.setItem('redactThingPluginSettings', JSON.stringify(settings));
+  console.log(settings);
+
+  const redactThingSettingsDidChange = new CustomEvent('redactThingSettingsDidChange', {
+    detail: settings
+  });
+
+  document.dispatchEvent(redactThingSettingsDidChange);
+
+  return settings;
+};
+
+getRedactthingPluginSettings = () => {
+  const settings = localStorage.getItem('redactThingPluginSettings') || setRedactthingPluginSettings();
+
+  if (settings) {
+    return JSON.parse(settings);
+  }
+
+  console.log(settings);
+  return settings;
+};
+
+function redactthingMaskEmail(email) {
+  let [user, domain] = email.split('@');
+  console.log(user, domain);
+
+  if (user.length > 3) {
+    user = user.substring(0, 2) + user.substring(2).replace(/./g, '*');
+  }
+  console.log(user, domain);
+
+  if (domain.length > 3) {
+    domain = domain.substring(0, 2) + domain.substring(2).replace(/./g, '*');
+  }
+  console.log(user, domain);
+
+  console.log(user, domain);
+  return `${user}@${domain}`;
+}
+
+function redacthingWrapEmails(emails = '') {
+  const elements = document.body.querySelectorAll('*').filter(element => element.nodeType === 3);
+  console.log(elements);
+
+  elements.forEach(element => {
+    console.log(element);
+    if (emails !== '' && emails.includes(element.textContent)) {
+      console.log(element.textContent);
+      const span = document.createElement('span');
+      span.classList.add(`redactthing-email redactthing-${settings.mode}`);
+      span.textContent = element.textContent;
+      element.parentNode.replaceChild(span, element);
+
+      if (settings.mode === 'mask') {
+        element.textContent = redactthingMaskEmail(element.textContent);
+        console.log(element.textContent);
+      }
+    } else {
+      let pattern = new RegExp(/[^@]+@[^@]+\.[^@]+/, 'gi');
+      console.log(pattern);
+
+      if (pattern.test(element.textContent)) {
+        console.log(element.textContent);
+        const span = document.createElement('span');
+        span.classList.add(`redactthing-email redactthing-${settings.mode}`);
+        span.textContent = element.textContent;
+        element.parentNode.replaceChild(span, element);
+
+        if (settings.mode === 'mask') {
+          element.textContent = redactthingMaskEmail(element.textContent);
+          console.log(element.textContent);
+        }
+      }
+    };
+  });
+  console.log(elements);
+}
+
+function redactthingMaskPii(pii) {
+  return pii.replace(/./g, '*');
+}
+
+function redactthingWrapPii(pii = '') {
+  const elements = document.body.querySelectorAll('*').filter(element => element.nodeType === 3);
+
+  elements.forEach(element => {
+    if (pii !== '' && pii.includes(element.textContent)) {
+      console.log(element.textContent);
+
+      const span = document.createElement('span');
+      span.classList.add(`redactthing-pii redactthing-${settings.mode}`);
+      span.textContent = element.textContent;
+      element.parentNode.replaceChild(span, element);
+
+      if (settings.mode === 'mask') {
+        element.textContent = redactthingMaskPii(element.textContent);
+        console.log(element.textContent);
+      }
+    } else {
+      let phones = new RegExp(/\+?1?( |-|\.)?\d{3}( |-|.)?\d{3}( |-|.)?\d{4}/, 'gi');
+      // street_address = new RegExp(/^(\d+[\w#\$\.]+|[A-Za-z]+ Building|House|\S+\s*(Apartment|Building|Rd.|St.|Ln.|Blvd.)\s*\d+)[- A-Za-z0-9\.#\$]+$/, 'gi');
+      console.log(phones);
+
+      if (phones.test(element.textContent)) {
+        console.log(element.textContent);
+
+        const span = document.createElement('span');
+        span.classList.add(`redactthing-pii redactthing-${settings.mode}`);
+        span.textContent = element.textContent;
+        element.parentNode.replaceChild(span, element);
+
+        if (settings.mode === 'mask') {
+          element.textContent = redactthingMaskPii(element.textContent);
+          console.log(element.textContent);
+        }
+      }
+    }
+  });
+  console.log(elements);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  let settings = getRedactthingPluginSettings();
+
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = chrome.runtime.getURL('foreground.css');
+  document.head.appendChild(link);
+
+  console.log(link, settings);
+
+  redacthingWrapEmails(settings.email);
+  redactthingWrapPii(settings.other);
+});
+
+function handleSettingsChanged(event) {
+  console.log(event);
+
+  const settings = event.detail;
+  console.log(settings);
+
+  mode_classes = [
+    'redactthing-redact',
+    'redactthing-mask',
+    'redactthing-hide',
+    'redactthing-blur',
+    'redactthing-show'
+  ];
+
+  type_classes = [
+    'redactthing-email',
+    'redactthing-pii'
+  ];
+
+  type_classes.forEach(type_class => {
+    console.log(type_class);
+
+    mode_classes.forEach(mode_class => {
+      console.log(mode_class);
+
+      document.querySelectorAll(`.${type_class}.${mode_class}`).forEach(element => {
+        console.log(element);
+
+        element.classList.remove(type_class, mode_class);
+      });
+    });
+
+    document.querySelectorAll(`.${type_class}`).forEach(element => {
+      console.log(element);
+
+      element.classList.add(`redactthing-${settings.mode}`);
+    });
+  });
+}
+
+document.addEventListener('redactThingSettingsDidChange', handleSettingsChanged);
+

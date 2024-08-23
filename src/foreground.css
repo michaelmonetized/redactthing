@@ -1,0 +1,38 @@
+.redactthing-email,
+.redactthing-pii,
+a[data-email]>span:last-child>div>div:last-child>div {
+  position: relative;
+  display: inline-block;
+}
+
+.redactthing-email::after,
+.redactthing-pii::after,
+a[data-email]>span:last-child>div>div:last-child>div::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+}
+
+.redactthing-redact::after,
+a[data-email]>span:last-child>div>div:last-child>div::after {
+  background: black;
+  opacity: 1;
+}
+
+.redactthing-hide {
+  visibility: hidden;
+}
+
+.redactthing-blur::after {
+  backdrop-filter: blur(50px);
+  opacity: .8;
+  background: black;
+}

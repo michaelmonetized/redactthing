@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="stylesheet" href="settings.css">
+  <title>Chrome Addon v3: Settings</title>
+</head>
+
+<body>
+  <h1>
+    <a href="https://www.hustlelaunch.com/redacthing">
+      <img src="../logo/logo.svg" alt="" width="256" height="256" />
+      redactthing
+    </a>
+  </h1>
+
+  <form name="redactthing-settings">
+    <div class="mode">
+      <label><input type="radio" name="mode" value="redact"> Redact</label>
+      <label><input type="radio" name="mode" value="blur"> Blur</label>
+      <label><input type="radio" name="mode" value="mask"> Mask</label>
+      <label><input type="radio" name="mode" value="hide"> Hide</label>
+      <label><input type="radio" name="mode" value="show"> Show</label>
+    </div>
+
+    <div class="fields">
+      <div class="field email">
+        <label for="email">Email Addresses
+          <textarea id="email" name="email" rows="4" cols="50"></textarea>>
+          <p><small>seperated by new line</small></p>
+        </label>
+      </div>
+
+      <div class="field pii">
+        <label for="other">Other
+          <textarea id="pii" name="pii" rows="4" cols="50"></textarea>
+          <p><small>seperated by new line</small></p>
+        </label>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="action reset">
+        <button type="reset" id="reset">Reset</button>
+      </div>
+      <div class="action save">
+        <button type="submit" id="save">Save</button>
+      </div>
+    </div>
+  </form>
+
+  <script src="settings.js"></script>
+</body>
+
+</html>
