@@ -23,5 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.dispatchEvent(redactThingSettingsDidChange);
   });
+
+  const redactBtn = document.getElementById('redactthing-redact-btn');
+  if (redactBtn) {
+    redactBtn.addEventListener('click', function() {
+      // Send a message to the content script to trigger redaction
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'redactthing_redact_now' });
+      });
+    });
+  }
 });
 

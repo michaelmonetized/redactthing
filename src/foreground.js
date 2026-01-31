@@ -26,5 +26,15 @@
   });
 
   observer.observe(document.body, { childList: true });
+
+  // Listen for messages from the popup to trigger redaction
+  if (window.chrome && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      if (request.action === 'redactthing_redact_now') {
+        redactthing_redact();
+        sendResponse({ success: true });
+      }
+    });
+  }
 })(jQuery, window, document, undefined);
 
