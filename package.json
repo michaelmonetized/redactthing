@@ -1,0 +1,12 @@
+{
+  "name": "redactthing",
+  "version": "1.0.0",
+  "description": "Chrome extension to hide email addresses and PII from being revealed in the browser — perfect for streaming.",
+  "author": "michaelmonetized",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michaelmonetized/redactthing"
+  },
+  "keywords": ["chrome-extension", "privacy", "redact", "pii", "streaming", "email-hiding"]
+}
