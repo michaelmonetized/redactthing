@@ -1,0 +1,19 @@
+{
+  "repoId": "r1721sv3hcwss4t34xpt5tfv4587ncry",
+  "owner": "uncap_user",
+  "name": "redactthing",
+  "originType": "native",
+  "legacy": {
+    "hasGitHub": false,
+    "hasGit": true
+  },
+  "defaults": {
+    "file": "public",
+    "fragment": "public",
+    "issue": "public",
+    "pullRequest": "public",
+    "branch": "public",
+    "comment": "public"
+  },
+  "headSha": ""
+}

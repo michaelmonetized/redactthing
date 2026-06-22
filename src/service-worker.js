@@ -1,12 +1,41 @@
-// This is the service worker script, which executes in its own context
-// when the extension is installed or refreshed (or when you access its console).
-// It would correspond to the background script in chrome extensions v2.
+const DEFAULT_OPTIONS = {
+  mode: 'redact',
+  email: '',
+  pii: ''
+};
 
-console.log("This prints to the console of the service worker (background script)")
+function normalizeOptions(options = {}) {
+  const allowedModes = new Set(['redact', 'blur', 'mask', 'hide', 'show']);
 
-// Importing and using functionality from external files is also possible.
-importScripts('service-worker-utils.js')
+  return {
+    mode: allowedModes.has(options.mode) ? options.mode : DEFAULT_OPTIONS.mode,
+    email: typeof options.email === 'string' ? options.email : DEFAULT_OPTIONS.email,
+    pii: typeof options.pii === 'string' ? options.pii : DEFAULT_OPTIONS.pii
+  };
+}
 
-// If you want to import a file that is deeper in the file hierarchy of your
-// extension, simply do `importScripts('path/to/file.js')`.
-// The path should be relative to the file `manifest.json`.
+function getStoredOptions(callback) {
+  chrome.storage.sync.get(['mode', 'email', 'pii', 'redactthing'], (storedOptions) => {
+    const legacyOptions =
+      storedOptions.redactthing && typeof storedOptions.redactthing === 'object'
+        ? storedOptions.redactthing
+        : {};
+
+    callback(
+      normalizeOptions({
+        ...legacyOptions,
+        ...(storedOptions.mode !== undefined ? { mode: storedOptions.mode } : {}),
+        ...(storedOptions.email !== undefined ? { email: storedOptions.email } : {}),
+        ...(storedOptions.pii !== undefined ? { pii: storedOptions.pii } : {})
+      })
+    );
+  });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  getStoredOptions((storedOptions) => {
+    chrome.storage.sync.set(storedOptions, () => {
+      chrome.storage.sync.remove('redactthing');
+    });
+  });
+});

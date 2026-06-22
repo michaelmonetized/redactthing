@@ -1,79 +1,118 @@
-const options = {
-  mode: 'redact', // or hide, mask, blur, show
-  emails: '',
+const DEFAULT_OPTIONS = {
+  mode: 'redact',
+  email: '',
   pii: ''
+};
+
+function normalizeOptions(options = {}) {
+  const allowedModes = new Set(['redact', 'blur', 'mask', 'hide', 'show']);
+
+  return {
+    mode: allowedModes.has(options.mode) ? options.mode : DEFAULT_OPTIONS.mode,
+    email: typeof options.email === 'string' ? options.email : DEFAULT_OPTIONS.email,
+    pii: typeof options.pii === 'string' ? options.pii : DEFAULT_OPTIONS.pii
+  };
 }
 
-const saveOptions = (options = options) => {
-  chrome.storage.sync.set({
-    redactthing: options,
+function getOptions() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['mode', 'email', 'pii', 'redactthing'], (storedOptions) => {
+      const legacyOptions =
+        storedOptions.redactthing && typeof storedOptions.redactthing === 'object'
+          ? storedOptions.redactthing
+          : {};
+
+      resolve(
+        normalizeOptions({
+          ...legacyOptions,
+          ...(storedOptions.mode !== undefined ? { mode: storedOptions.mode } : {}),
+          ...(storedOptions.email !== undefined ? { email: storedOptions.email } : {}),
+          ...(storedOptions.pii !== undefined ? { pii: storedOptions.pii } : {})
+        })
+      );
+    });
   });
+}
 
-  window.dispatchEvent(new CustomEvent('redactthing:options-changed', { detail: options }));
+function saveOptions(options) {
+  const nextOptions = normalizeOptions(options);
 
-  return options;
-};
-
-const getOptions = () => {
-  const options = chrome.storage.sync.get('redactthing', (result) => {
-    return result.redactthing;
+  return new Promise((resolve) => {
+    chrome.storage.sync.set(nextOptions, () => {
+      chrome.storage.sync.remove('redactthing', () => {
+        resolve(nextOptions);
+      });
+    });
   });
+}
 
-  return options;
-};
+function populateForm(form, options) {
+  form.querySelector('#email').value = options.email;
+  form.querySelector('#pii').value = options.pii;
 
-const setOption = (key, value) => {
-  const options = getOptions();
-  options[key] = value;
-
-  saveOptions(options);
-};
-
-const getOption = (key) => {
-  const options = getOptions();
-  return options[key];
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-  const options = getOptions();
-
-  document.querySelector('#emails').value = options.emails;
-  document.querySelector('#pii').value = options.pii;
-
-  document.querySelectorAll('[name="mode"]').forEach((radio) => {
+  form.querySelectorAll('[name="mode"]').forEach((radio) => {
     radio.checked = radio.value === options.mode;
   });
-});
-
-document.querySelector('[name="mode"]').addEventListener('change', (event) => {
-  setOption('mode', event.target.value);
-});
-
-document.querySelector('[name="emails"]').addEventListener('blur', (event) => {
-  setOption('emails', event.target.value);
-});
-
-document.querySelector('[name="pii"]').addEventListener('blur', (event) => {
-  setOption('pii', event.target.value);
-});
-
-function saveForm(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.stopImmediatePropagation();
-
-  const form = document.querySelector('form[name="redactthing-settings"]');
-  const formOptions = { ...form.formData.entries() };
-
-  saveOptions(formOptions);
 }
 
-document.querySelector('#save').addEventListener('mousedown', (event) => saveForm);
+function readForm(form) {
+  const formData = new FormData(form);
 
-const formEvents = ['change', 'submit'];
-formEvents.forEach((event) => {
-  document.querySelector('form[name="redactthing-settings"]').addEventListener(event, (event) => saveForm);
+  return normalizeOptions({
+    mode: formData.get('mode'),
+    email: formData.get('email'),
+    pii: formData.get('pii')
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const form = document.querySelector('form[name="redactthing-settings"]');
+  const resetButton = document.getElementById('reset');
+
+  if (!form) {
+    return;
+  }
+
+  let options = await getOptions();
+  populateForm(form, options);
+
+  form.addEventListener('change', async () => {
+    options = await saveOptions(readForm(form));
+    populateForm(form, options);
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    options = await saveOptions(readForm(form));
+    populateForm(form, options);
+  });
+
+  ['email', 'pii'].forEach((fieldName) => {
+    const field = form.querySelector(`#${fieldName}`);
+
+    field.addEventListener('blur', async () => {
+      options = await saveOptions(readForm(form));
+      populateForm(form, options);
+    });
+  });
+
+  resetButton.addEventListener('click', async (event) => {
+    event.preventDefault();
+    options = await saveOptions(DEFAULT_OPTIONS);
+    form.reset();
+    populateForm(form, options);
+  });
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'sync') {
+      return;
+    }
+
+    options = normalizeOptions({
+      ...options,
+      ...Object.fromEntries(Object.entries(changes).map(([key, value]) => [key, value.newValue]))
+    });
+
+    populateForm(form, options);
+  });
 });
-
-document.querySelector('#reset').addEventListener('mousedown', (event) => saveForm);
-
