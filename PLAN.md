@@ -4,7 +4,7 @@
 
 redactthing is a Chrome extension that helps streamers and content creators hide sensitive personal information (PII) like email addresses from being visible in the browser. With one click, it redacts emails and other configured sensitive data using various modes (blur, hide, redact, mask).
 
-**Tech Stack:** Chrome Extension (Manifest V3), JavaScript, jQuery, HTML/CSS
+**Tech Stack:** Chrome Extension (Manifest V3), vanilla JavaScript, HTML/CSS
 
 ## Current State
 
@@ -61,7 +61,7 @@ redactthing is a Chrome extension that helps streamers and content creators hide
 - [ ] Extension screenshots and promo images
 - [ ] Store description and keywords
 - [ ] Code review and security audit
-- [ ] Remove jQuery dependency (vanilla JS)
+- [x] Remove jQuery dependency (vanilla JS)
 - [ ] Performance optimization
 - [ ] Chrome Web Store submission
 - [ ] PRO tier setup (one-time or subscription)
