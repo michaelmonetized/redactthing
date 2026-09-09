@@ -2,6 +2,9 @@
 
 Just install the extension, click the extension icon to hide all email addresses.
 
+
+> **Product page:** there is no live `hustlelaunch.com/redactthing` lander. Use this GitHub repo as the canonical product page.
+
 ## PRO Options
 
 - mode: blur | hide | redact | mask | show, default redact
